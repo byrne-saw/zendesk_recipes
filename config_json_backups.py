@@ -2,6 +2,7 @@
 ToDo: 
     Write docstring
     Incorporate Check Status into paginate fuction
+    Dry up automations / ticket fields / triggers code with a loop that goes through endpoints
 
 """
 import requests, os, datetime, json
@@ -59,22 +60,30 @@ def paginate(url, dict_key):
 
 # get automations json and save to file
 
-automations_url = URL + 'automations'
 get_desc = 'automations'
+automations_url = URL + get_desc
 
 automations = paginate(automations_url, get_desc)
 write_file(automations, get_desc)
 
 # get triggers json and save to file
 
-triggers_url = URL + 'triggers'
 get_desc = 'triggers'
+triggers_url = URL + get_desc
 
 triggers = paginate(triggers_url, get_desc)
 
 write_file(triggers, get_desc)
 
 
+# get ticket_fields json and save to file
+
+
+get_desc = 'ticket_fields'
+tixfield_url = URL + get_desc
+
+tixfields = paginate(tixfield_url, get_desc)
+write_file(tixfields, get_desc)
 
 
 
