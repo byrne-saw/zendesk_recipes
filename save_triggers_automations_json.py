@@ -1,12 +1,18 @@
+"""
+ToDo: 
+    Write docstring
+    Incorporate Check Status into paginate fuction
+
+"""
 import requests, os, datetime, json
 from dotenv import load_dotenv
 
 # load and set variables from .env file
 load_dotenv()
 
-url = os.environ['ZD_URL']
-user = os.environ['ZD_USER']
-pwd = os.environ['ZD_PW']
+URL = os.environ['ZD_URL']
+USER = os.environ['ZD_USER']
+PWD = os.environ['ZD_PW']
 
 # timestamp string for file names
 time_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") 
@@ -22,39 +28,51 @@ def check_status(response, desc):
         print('Status', response.satus_code, 'Problem with the', desc, 'request. Exiting.')
         exit()
 
-def write_file(response, desc):
+def write_file(json_obj, desc):
     """
-    expects a requests response object and a str describing the response
+    expects a json object and a str describing the response
     returns a json file with a current timestamp and desc in the file name
     """
-    data = response.json()
-    file_name = desc + time_string + '.json'
+    file_name = desc + '_' + time_string + '.json'
     with open(file_name, 'w') as f:
-        json.dump(data, f, sort_keys=True, indent=4)
-    
+        json.dump(json_obj, f, sort_keys=True, indent=4)
+
+def paginate(url, dict_key):
+    """
+    expects a string url and string dict_key
+    returns a json object
+    https://developer.zendesk.com/rest_api/docs/support/introduction#pagination
+    https://develop.zendesk.com/hc/en-us/articles/360053166453
+    """
+    s = requests.Session()
+    s.auth = (USER, PWD)
+    json_obj = {dict_key:[]}
+    while url:
+        response = s.get(url)
+        data = response.json()
+        for value in data[dict_key]:
+            json_obj[dict_key].append(value)
+        url = data['next_page']
+
+    return json_obj
+
 
 # get automations json and save to file
 
-automations_url = url + 'automations'
-
+automations_url = URL + 'automations'
 get_desc = 'automations'
-response = requests.get(automations_url, auth=(user, pwd))
 
-check_status(response, get_desc)
-
-write_file(response, get_desc)
+automations = paginate(automations_url, get_desc)
+write_file(automations, get_desc)
 
 # get triggers json and save to file
 
-triggers_url = url + 'triggers'
-
+triggers_url = URL + 'triggers'
 get_desc = 'triggers'
-response = requests.get(triggers_url, auth=(user, pwd))
 
-check_status(response, get_desc)
+triggers = paginate(triggers_url, get_desc)
 
-write_file(response, get_desc)
-
+write_file(triggers, get_desc)
 
 
 
