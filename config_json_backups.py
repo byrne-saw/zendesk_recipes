@@ -5,7 +5,10 @@ ToDo:
     Dry up automations / ticket fields / triggers code with a loop that goes through endpoints
 
 """
-import requests, os, datetime, json
+import requests
+import os
+import datetime
+import json
 from dotenv import load_dotenv
 
 # load and set variables from .env file
